@@ -1,0 +1,19 @@
+{
+  "name": "jordyvega.github.io",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "deploy": "astro build && npx gh-pages -d dist -b gh-pages"
+  },
+  "dependencies": {
+    "astro": "^5.15.2"
+  },
+  "devDependencies": {
+    "@astrojs/vercel": "^9.0.0",
+    "gh-pages": "^6.3.0"
+  }
+}
