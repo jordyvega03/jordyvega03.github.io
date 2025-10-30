@@ -1,0 +1,93 @@
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap");
+
+:root{
+  --bg: #000000;
+  --text: #ffffff;
+  --accent: #00ff9d;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.terminal {
+  position: relative;
+  width: 92%;
+  max-width: 1000px;
+  height: 92vh;
+  overflow: hidden; /* matrix canvas will overlay */
+  padding: 20px;
+  box-sizing: border-box;
+  white-space: pre-wrap;
+  background: var(--bg);
+  border-radius: 8px;
+}
+
+/* ASCII / initial text */
+.ascii {
+  text-align: center;
+  color: var(--text);
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+/* tiny hint under ascii */
+.hint {
+  text-align: center;
+  color: #9a9a9a;
+  margin-top: 10px;
+}
+
+/* prompt color */
+.prompt {
+  color: var(--accent);
+  margin-top: 8px;
+  z-index: 2;
+  position: relative;
+}
+
+/* printed sections */
+.result {
+  color: #dcdcdc;
+  margin-left: 2rem;
+  margin-top: 8px;
+  white-space: pre-wrap;
+  z-index: 2;
+  position: relative;
+    line-height: 1.6;
+  letter-spacing: 0.3px;
+}
+
+/* controls text */
+.controls {
+  color: #888;
+  margin-top: 10px;
+  text-align: center;
+  font-size: 13px;
+  z-index: 2;
+  position: relative;
+}
+
+/* Canvas overlay for matrix */
+.matrix-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3; /* above content */
+  display: block;
+  pointer-events: none; /* allow key events */
+}
