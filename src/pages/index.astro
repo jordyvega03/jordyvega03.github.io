@@ -1,0 +1,334 @@
+---
+import "../styles/terminal.css";
+---
+
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>jordy@docker-shell</title>
+	</head>
+	<body>
+		<main class="terminal" id="terminal"></main>
+
+		<script>
+			window.addEventListener("DOMContentLoaded", () => {
+				const terminal = document.getElementById("terminal");
+				if (!(terminal instanceof HTMLElement)) return;
+
+				// Banner inicial
+				const asciiTitle = `
+                                                                                                                                 
+    _____                            __                  __     __                              
+   /     |                          /  |                /  |   /  |                             
+   $$$$$ |  ______    ______    ____$$ | __    __       $$ |   $$ | ______    ______    ______  
+      $$ | /      \  /      \  /    $$ |/  |  /  |      $$ |   $$ |/      \  /      \  /      \ 
+ __   $$ |/$$$$$$  |/$$$$$$  |/$$$$$$$ |$$ |  $$ |      $$  \ /$$//$$$$$$  |/$$$$$$  | $$$$$$  |
+/  |  $$ |$$ |  $$ |$$ |  $$/ $$ |  $$ |$$ |  $$ |       $$  /$$/ $$    $$ |$$ |  $$ | /    $$ |
+$$ \__$$ |$$ \__$$ |$$ |      $$ \__$$ |$$ \__$$ |        $$ $$/  $$$$$$$$/ $$ \__$$ |/$$$$$$$ |
+$$    $$/ $$    $$/ $$ |      $$    $$ |$$    $$ |         $$$/   $$       |$$    $$ |$$    $$ |
+ $$$$$$/   $$$$$$/  $$/        $$$$$$$/  $$$$$$$ |          $/     $$$$$$$/  $$$$$$$ | $$$$$$$/ 
+                                        /  \__$$ |                          /  \__$$ |          
+                                        $$    $$/                           $$    $$/           
+                                         $$$$$$/                             $$$$$$/            
+
+										 
+Jordy Vega — Backend Software Engineer
+`;
+
+				terminal.innerHTML = `<pre class="ascii">${asciiTitle}</pre>
+        <p class="hint">Press ENTER to start the terminal...</p>`;
+
+				document.addEventListener(
+					"keydown",
+					(e) => {
+						if (e.key === "Enter") startTerminal();
+					},
+					{ once: true },
+				);
+
+				// Comandos + contenido (todo tu CV)
+				const lines = [
+					"summary",
+					"experience",
+					"skills",
+					"databases",
+					"devops",
+					"tools",
+					"streaming",
+					"architecture",
+					"education",
+					"certifications",
+					"languages",
+				];
+
+				const output = [
+					`Results-driven Software Engineer with 6+ years of experience designing, developing, and maintaining distributed microservices across the telecommunications, banking, and AI sectors.
+Specialized in Java and Spring Boot, with strong expertise in SQL, NoSQL, and document-oriented databases.
+Proven ability to deliver microservices-based, event-driven, hexagonal, and serverless architectures.
+Integrates AWS and Azure services for high availability, scalability, and performance.
+Proficient in CI/CD with Azure DevOps, AWS CodePipeline, and Git workflows.
+Focused on clean code, testing, and business-driven solutions.`,
+
+					`[SIGEL S.A | Guatemala | Feb 2019 – Jan 2024]
+- Development and maintenance of RESTful microservices using Java and Spring Boot for Claro’s corporate portal in Central America.
+- Implementation of MongoDB as a storage system and Azure DevOps for CI/CD management.
+- Management and resolution of Change Requests and Bug fixes, ensuring stability and continuous improvement.
+- Designed unit and integration tests with JUnit and Mockito.
+
+[Thuban Semantic Technologies | Remote / Spain | Jan 2023 – Dec 2023]
+- Developed a hybrid chatbot integrating vector databases, graph databases, and LLM models in Python.
+- Configured CI/CD pipelines and ensured efficient deployments.
+- Integrated and validated ML and graph components for interoperability.
+
+[Promerica Financial Group | Remote / Costa Rica | Jan 2024 – Present]
+- Development of Java and Spring Boot microservices within a proprietary banking framework.
+- Implemented Oracle database queries and optimized performance.
+- Authored OpenAPI/Swagger documentation for integration.
+- Applied CI/CD with Azure DevOps and implemented OAuth2 + JWT security.`,
+
+					`Programming Languages:
+- Java, Python, C#, Go, PHP, JavaScript, SQL, SPARQL, Bash, TypeScript
+
+Frameworks & Libraries:
+- Spring Boot, Spring Cloud, Spring Security, Flask, .NET, Laravel, Apache Jena, Apache Camel, ReactJS, Angular, Node.js`,
+
+					`Relational:
+- Oracle, MySQL, PostgreSQL, Amazon Aurora
+
+NoSQL:
+- MongoDB, DynamoDB, Redis, Amazon ElastiCache
+
+Graph & RDF:
+- GraphDB, RDF Stores, Blazegraph
+
+Others:
+- Amazon RDS, Amazon Timestream, OpenSearch`,
+
+					`DevOps & Infrastructure:
+- Docker, Docker Compose, Kubernetes
+- AWS (ECS, EKS, Lambda, S3, CloudFront, CloudFormation, Route 53, IAM)
+- Azure DevOps, GitHub Actions, GitLab CI/CD
+- Jenkins, Bitbucket Pipelines
+- Digital Ocean, Terraform, Helm`,
+
+					`Development & Quality Tools:
+- Git, GitHub, GitLab, Bitbucket
+- SonarQube, CheckStyle, PMD
+- Postman, Swagger/OpenAPI, REST Assured
+- JUnit, Mockito, JaCoCo`,
+
+					`Streaming & Messaging:
+- Kafka, RabbitMQ, Amazon Kinesis, Amazon SNS/SQS
+- HLS / DASH, WebRTC
+- FFmpeg, AWS Elemental MediaConvert`,
+
+					`Architecture & Standards:
+- Microservices, RESTful APIs, Event-Driven Architecture (EDA)
+- Serverless (AWS Lambda), Hexagonal Architecture
+- CQRS, Saga Pattern
+- OAuth2, JWT, API Gateway`,
+
+					`Education:
+- Master’s in Electronic & Computational Banking — Universidad Mariano Gálvez (2024–Present)
+- B.S. in Computer Systems Engineering — Universidad Mariano Gálvez (2018–2023)`,
+
+					`Certifications:
+- Oracle Certified Professional Developer
+- Java SE 8 Programmer
+- Red Hat Certified Enterprise Microservices Developer (EX283)
+- Kafka Development`,
+
+					`Languages:
+- Spanish: Native
+- English: B2 (improving continuously)`,
+				];
+
+				let index = 0;
+				let isPaused = false;
+				let matrixActive = false;
+				let matrixHandle = null;
+
+				function startTerminal() {
+					terminal.innerHTML = "";
+					index = 0;
+					isPaused = false;
+					matrixActive = false;
+					typeNext(0);
+				}
+
+				function clearScreen(callback) {
+					setTimeout(() => {
+						terminal.innerHTML = "";
+						callback();
+					}, 900);
+				}
+
+				function typeNext(i) {
+					if (i >= lines.length) {
+						// todas las secciones mostradas -> activar matrix
+						showEndAndMatrix();
+						return;
+					}
+
+					const cmd = lines[i];
+					const prompt = document.createElement("div");
+					prompt.className = "prompt";
+					terminal.appendChild(prompt);
+
+					let charIndex = 0;
+					const typeInterval = setInterval(() => {
+						if (isPaused) return;
+						prompt.textContent = `jordy@docker-container:~$ ${cmd.slice(0, charIndex++)}`;
+						if (charIndex > cmd.length) {
+							clearInterval(typeInterval);
+							setTimeout(() => showOutput(i), 300);
+						}
+					}, 60);
+				}
+
+				function showOutput(i) {
+					const result = document.createElement("pre");
+					result.className = "result";
+					result.textContent = output[i];
+					terminal.appendChild(result);
+
+					const controls = document.createElement("p");
+					controls.className = "controls";
+					controls.innerHTML =
+						"[Press SPACE to pause | Press ENTER to continue]";
+					terminal.appendChild(controls);
+
+					window.scrollTo(0, document.body.scrollHeight);
+
+					// handler de teclas para esta sección
+					// Limpia listeners previos para evitar duplicados
+					document.onkeydown = null;
+
+					// Listener único
+					const handleKey = (e) => {
+						if (e.code === "Space") {
+							e.preventDefault();
+							if (!isPaused) {
+								isPaused = true;
+								controls.innerHTML =
+									"[Paused — Press ENTER to continue]";
+							}
+						} else if (e.code === "Enter") {
+							e.preventDefault();
+							if (isPaused) {
+								isPaused = false;
+								controls.innerHTML =
+									"[Press SPACE to pause | Press ENTER to continue]";
+							} else {
+								// Limpia el listener actual para evitar múltiples ejecuciones
+								document.removeEventListener(
+									"keydown",
+									handleKey,
+								);
+								controls.remove();
+								clearScreen(() => typeNext(i + 1));
+							}
+						}
+					};
+
+					// Registrar nuevo listener
+					document.addEventListener("keydown", handleKey);
+				}
+
+				// ——— Matrix effect ———
+				function showEndAndMatrix() {
+					// Mensaje final antes de la animación
+					terminal.innerHTML = "";
+					const last = document.createElement("div");
+					last.className = "prompt";
+					last.textContent =
+						"jordy@docker-container:~$ session complete — initiating protection";
+					terminal.appendChild(last);
+
+					const hint = document.createElement("p");
+					hint.className = "controls";
+					hint.textContent =
+						"[Press ENTER to stop the protection and restart]";
+					terminal.appendChild(hint);
+
+					// small delay, luego activa matrix
+					setTimeout(() => startMatrix(), 900);
+				}
+
+				function startMatrix() {
+					if (matrixActive) return;
+					matrixActive = true;
+
+					// canvas overlay
+					const canvas = document.createElement("canvas");
+					canvas.className = "matrix-canvas";
+					terminal.appendChild(canvas);
+					canvas.width = terminal.clientWidth;
+					canvas.height = terminal.clientHeight;
+
+					const ctx = canvas.getContext("2d");
+					if (!ctx) return;
+
+					const letters =
+						"アィイゥウェエォオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789@#$%&*()";
+					const fontSize = 16;
+					const columns = Math.floor(canvas.width / fontSize);
+					const drops = new Array(columns).fill(1);
+
+					ctx.font = `${fontSize}px monospace`;
+
+					function draw() {
+						// semi-fade for trail
+						ctx.fillStyle = "rgba(0, 0, 0, 0.06)";
+						ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+						ctx.fillStyle = "#00ff9d"; // green
+						for (let i = 0; i < drops.length; i++) {
+							const text = letters.charAt(
+								Math.floor(Math.random() * letters.length),
+							);
+							const x = i * fontSize;
+							const y = drops[i] * fontSize;
+							ctx.fillText(text, x, y);
+
+							if (y > canvas.height && Math.random() > 0.975)
+								drops[i] = 0;
+							drops[i]++;
+						}
+
+						matrixHandle = requestAnimationFrame(draw);
+					}
+
+					draw();
+
+					// resize handler so canvas always cover
+					const resizeObserver = new ResizeObserver(() => {
+						canvas.width = terminal.clientWidth;
+						canvas.height = terminal.clientHeight;
+						ctx.font = `${fontSize}px monospace`;
+					});
+					resizeObserver.observe(terminal);
+
+					// ENTER to stop + restart
+					document.onkeydown = (e) => {
+						if (e.code === "Enter") {
+							e.preventDefault();
+							stopMatrix(canvas, resizeObserver);
+							startTerminal();
+						}
+					};
+				}
+
+				function stopMatrix(canvas, resizeObserver) {
+					if (!matrixActive) return;
+					matrixActive = false;
+					if (matrixHandle) cancelAnimationFrame(matrixHandle);
+					if (resizeObserver) resizeObserver.disconnect();
+					if (canvas && canvas.parentNode)
+						canvas.parentNode.removeChild(canvas);
+				}
+			});
+		</script>
+	</body>
+</html>
